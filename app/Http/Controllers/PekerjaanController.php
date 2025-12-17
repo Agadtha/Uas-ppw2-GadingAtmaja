@@ -6,16 +6,30 @@ use App\Models\Pekerjaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\PekerjaanController;
+
+
+
 
 class PekerjaanController extends Controller
 {
-    public function index(Request $request) {
-        $keyword = $request->get('keyword');
-        $data = Pekerjaan::when($keyword, function ($query) use ($keyword) {
-            $query->where('nama', 'like', "%{$keyword}%")->orWhere('deskripsi', 'like', "%{$keyword}%");
-        })->get();
-        return view('pekerjaan.index', compact('data'));
+    public function index(Request $request)
+    {
+    $keyword = $request->get('keyword');
+
+    $data = Pekerjaan::withCount('pegawai')
+    ->when($keyword, function ($query) use ($keyword) {
+        $query->where(function ($q) use ($keyword) {
+            $q->where('nama', 'like', "%{$keyword}%")
+              ->orWhere('deskripsi', 'like', "%{$keyword}%");
+            });
+        })
+        ->paginate(5)          
+        ->withQueryString();   
+
+    return view('pekerjaan.index', compact('data'));
     }
+
 
     public function add() {
         return view('pekerjaan.add');
@@ -64,9 +78,14 @@ class PekerjaanController extends Controller
             return redirect()->route('pekerjaan.index')->with('success', 'Data tidak tersimpan');
         }
     }
+        public function destroy($id)
+        {
+        $pekerjaan = Pekerjaan::findOrFail($id);
+        $pekerjaan->delete(); // Soft delete
 
-    public function destroy(Request $request) {
-        Pekerjaan::findOrFail($request->id)->delete();
-        return redirect()->route('pekerjaan.index')->with('success', 'Data terhapus');
-    }
+        return redirect()
+            ->route('pekerjaan.index')
+            ->with('success', 'Data berhasil dihapus');
+        }
+
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PegawaiController;
 
 Route::get('/', [App\Http\Controllers\MainController::class, 'index'])->name('index');
 
@@ -10,5 +11,20 @@ Route::prefix('/pekerjaan')->group(function () {
     Route::post('insert', [App\Http\Controllers\PekerjaanController::class, 'store'])->name('pekerjaan.store');
     Route::get('edit/{id}', [App\Http\Controllers\PekerjaanController::class, 'edit'])->name('pekerjaan.edit');
     Route::put('update', [App\Http\Controllers\PekerjaanController::class, 'update'])->name('pekerjaan.update');
-    Route::delete('delete', [App\Http\Controllers\PekerjaanController::class, 'destroy'])->name('pekerjaan.destroy');
+    Route::delete('delete/{id}', [App\Http\Controllers\PekerjaanController::class, 'destroy'])->name('pekerjaan.destroy');
 });
+
+
+
+Route::prefix('pegawai')->name('pegawai.')->group(function () {
+    Route::get('/', [PegawaiController::class, 'index'])->name('index');
+    Route::get('/create', [PegawaiController::class, 'create'])->name('create');
+    Route::post('/', [PegawaiController::class, 'store'])->name('store');
+    Route::get('/{id}/edit', [PegawaiController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [PegawaiController::class, 'update'])->name('update');
+    Route::delete('/{id}', [PegawaiController::class, 'destroy'])->name('destroy');
+});
+
+
+
+
